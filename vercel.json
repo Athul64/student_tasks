@@ -1,0 +1,13 @@
+{
+    "version": 2,
+    "name": "my-task-app",
+    "builds": [
+      { "src": "api/*.js", "use": "@vercel/node" },
+      { "src": "public/**/*", "use": "@vercel/static" }
+    ],
+    "routes": [
+      { "src": "/api/(.*)", "dest": "/api/tasks.js" },
+      { "src": "/(.*)", "dest": "/public/$1" }
+    ]
+  }
+  

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Tasks</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #fff;
+        }
+        h1, h2 {
+            background: linear-gradient( #4285f4 var(--bard-color-brand-text-gradient-stop-1) 0, var(--bard-color-brand-text-gradient-stop-2) 9%, var(--bard-color-brand-text-gradient-stop-3) 20%, var(--bard-color-brand-text-gradient-stop-3) 24%, var(--bard-color-brand-text-gradient-stop-2) 35%, var(--bard-color-brand-text-gradient-stop-1) 44%, var(--bard-color-brand-text-gradient-stop-2) 50%, var(--bard-color-brand-text-gradient-stop-3) 56%, var(--gem-sys-color--surface) 75%, var(--gem-sys-color--surface) 100%);            text-align: center;
+        }
+        .task-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            padding: 0;
+            list-style-type: none;
+            margin: 20px;
+        }
+        .task-list li {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: box-shadow 0.3s;
+        }
+        .task-list li:hover {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .task-details {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .task-details span {
+            font-weight: bold;
+            color: #555;
+        }
+        form {
+            margin: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #555;
+        }
+        input, textarea {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 25px;
+            background-color: #2B616D;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #FA8D62;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Student Tasks</h1>
+
+    <!-- Form to Create New Task -->
+    <h2>Create New Task</h2>
+    <form id="createTaskForm">
+        <label for="newCourseId">Course ID:</label>
+        <input type="text" id="newCourseId" required>
+        <label for="newTaskName">Task Name:</label>
+        <input type="text" id="newTaskName" required>
+        <label for="newDueDate">Due Date:</label>
+        <input type="date" id="newDueDate" required>
+        <label for="newDetails">Details:</label>
+        <textarea id="newDetails" required></textarea>
+        <button type="submit">Create Task</button>
+    </form>
+
+    <!-- Form to Update Existing Task -->
+    <h2>Update Task</h2>
+    <form id="updateTaskForm">
+        <label for="taskId">Task ID:</label>
+        <input type="text" id="taskId" required>
+        <label for="courseId">Course ID:</label>
+        <input type="text" id="courseId" required>
+        <label for="taskName">Task Name:</label>
+        <input type="text" id="taskName" required>
+        <label for="dueDate">Due Date:</label>
+        <input type="date" id="dueDate" required>
+        <label for="details">Details:</label>
+        <textarea id="details" required></textarea>
+        <button type="submit">Update Task</button>
+    </form>
+
+    <!-- List of Tasks -->
+    <h2>Task List</h2>
+    <ul class="task-list" id="taskList">
+        <!-- Tasks will be populated here -->
+    </ul>
+
+    <script>
+        // Fetch JSON data from the Express server
+        function fetchTasks() {
+            fetch('http://localhost:3000/')
+                .then(response => response.json())
+                .then(data => {
+                    const taskList = document.getElementById('taskList');
+                    taskList.innerHTML = '';
+
+                    if (data.length === 0) {
+                        taskList.innerHTML = '<li>No tasks found.</li>';
+                    } else {
+                        data.forEach(task => {
+                            const listItem = document.createElement('li');
+                            
+                            const taskDetails = `
+                                <div class="task-details"><span>ID:</span><div>${task._id}</div></div>
+                                <div class="task-details"><span>Course:</span><div>${task.courseId}</div></div>
+                                <div class="task-details"><span>Task:</span><div>${task.taskName}</div></div>
+                                <div class="task-details"><span>Due Date:</span><div>${new Date(task.dueDate).toLocaleDateString()}</div></div>
+                                <div class="task-details"><span>Details:</span><div>${task.details}</div></div>
+                            `;
+                            
+                            listItem.innerHTML = taskDetails;
+                            taskList.appendChild(listItem);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching tasks:', error);
+                    const taskList = document.getElementById('taskList');
+                    taskList.innerHTML = '<li>Failed to load tasks.</li>';
+                });
+        }
+
+       // Handle new task form submission
+document.getElementById('createTaskForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const courseId = document.getElementById('newCourseId').value;
+    const taskName = document.getElementById('newTaskName').value;
+    const dueDate = document.getElementById('newDueDate').value;
+    const details = document.getElementById('newDetails').value;
+
+    fetch('http://localhost:3000/tasks', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify([{ courseId, taskName, dueDate, details }])
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Task created:', data);
+        fetchTasks(); // Refresh the task list
+        document.getElementById('createTaskForm').reset(); // Reset the form
+    })
+    .catch(error => {
+        console.error('Error creating task:', error);
+    });
+});
+
+// Handle update task form submission
+document.getElementById('updateTaskForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const taskId = document.getElementById('taskId').value;
+    const courseId = document.getElementById('courseId').value;
+    const taskName = document.getElementById('taskName').value;
+    const dueDate = document.getElementById('dueDate').value;
+    const details = document.getElementById('details').value;
+
+    fetch(`http://localhost:3000/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ courseId, taskName, dueDate, details })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Task updated:', data);
+        fetchTasks(); // Refresh the task list
+        document.getElementById('updateTaskForm').reset(); // Reset the form
+    })
+    .catch(error => {
+        console.error('Error updating task:', error);
+    });
+});
+
+        // Initial fetch of tasks
+        fetchTasks();
+    </script>
+
+</body>
+</html>
