@@ -18,7 +18,7 @@ A web application designed to help students manage their tasks for different cou
 ## Project Setup
 - **MongoDB Setup**:
   - Ensure MongoDB is installed and running locally or on a remote server.
-  - Create a database named student_tasks.
+  - Create a database named `student_tasks`.
   - Create collections of courses and tasks for storing course and task information, respectively.
     
 ## Frontend Implementation:
@@ -45,17 +45,17 @@ GET /
 
 # Setup Instructions:
 1 *Clone the repository*.
-bash
-  git clone https://github.com/yourusername/students_tasks
-
+```bash
+git clone https://github.com/yourusername/students_tasks
+```
 2 *Install dependencies: npm install*.
-bash
+```bash
 npm i
-
+```
 3 *Start the server: npm start*.
-bash
+```bash
 npm run dev
-
+```
 4 *Open your browser* and go to http://locathost:5173 to see the application in action
 5 *Configure MongoDB connection*.
 6 *Use Postman to test API endpoints*.
